@@ -11,7 +11,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.edit
@@ -21,14 +20,11 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import app.passwordstore.R
 import app.passwordstore.databinding.FragmentPwgenBinding
-import app.passwordstore.passgen.random.MaxIterationsExceededException
-import app.passwordstore.passgen.random.NoCharactersIncludedException
 import app.passwordstore.passgen.random.PasswordGenerator
-import app.passwordstore.passgen.random.PasswordLengthTooShortException
 import app.passwordstore.passgen.random.PasswordOption
 import app.passwordstore.ui.crypto.PasswordCreationActivity
 import app.passwordstore.util.settings.PreferenceKeys
-import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.runCatching
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.merge
@@ -41,7 +37,6 @@ class PasswordGeneratorDialogFragment : DialogFragment() {
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val prefs = requireContext().getSharedPreferences("PasswordGenerator", Context.MODE_PRIVATE)
     val builder = MaterialAlertDialogBuilder(requireContext())
-
     val binding = FragmentPwgenBinding.inflate(layoutInflater)
     builder.setView(binding.root)
 
@@ -56,14 +51,14 @@ class PasswordGeneratorDialogFragment : DialogFragment() {
 
     lifecycleScope.launch {
       merge(
-          binding.numerals.checkedChanges().skipInitialValue(),
-          binding.symbols.checkedChanges().skipInitialValue(),
-          binding.uppercase.checkedChanges().skipInitialValue(),
-          binding.lowercase.checkedChanges().skipInitialValue(),
-          binding.ambiguous.checkedChanges().skipInitialValue(),
-          binding.pronounceable.checkedChanges().skipInitialValue(),
-          binding.lengthNumber.afterTextChanges().skipInitialValue(),
-        )
+        binding.numerals.checkedChanges().skipInitialValue(),
+        binding.symbols.checkedChanges().skipInitialValue(),
+        binding.uppercase.checkedChanges().skipInitialValue(),
+        binding.lowercase.checkedChanges().skipInitialValue(),
+        binding.ambiguous.checkedChanges().skipInitialValue(),
+        binding.pronounceable.checkedChanges().skipInitialValue(),
+        binding.lengthNumber.afterTextChanges().skipInitialValue(),
+      )
         .collect { generate(binding.passwordText) }
     }
 
@@ -96,20 +91,7 @@ class PasswordGeneratorDialogFragment : DialogFragment() {
     setPrefs(requireContext(), passwordOptions, passwordLength)
     passwordField.text =
       runCatching { PasswordGenerator.generate(passwordOptions, passwordLength) }
-        .getOrElse { exception ->
-          val errorText =
-            when (exception) {
-              is MaxIterationsExceededException ->
-                requireContext().getString(R.string.pwgen_max_iterations_exceeded)
-              is NoCharactersIncludedException ->
-                requireContext().getString(R.string.pwgen_no_chars_error)
-              is PasswordLengthTooShortException ->
-                requireContext().getString(R.string.pwgen_length_too_short_error)
-              else -> requireContext().getString(R.string.pwgen_some_error_occurred)
-            }
-          Toast.makeText(requireActivity(), errorText, Toast.LENGTH_SHORT).show()
-          ""
-        }
+        .get() ?: ""
   }
 
   private fun isChecked(@IdRes id: Int): Boolean {

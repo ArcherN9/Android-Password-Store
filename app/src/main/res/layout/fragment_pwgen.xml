@@ -95,7 +95,8 @@
           android:layout_marginBottom="8dp"
           android:autofillHints="notApplicable"
           android:ems="10"
-          android:inputType="number" />
+          android:inputType="number"
+          android:maxLength="2" />
 
         <CheckBox
           android:id="@+id/pronounceable"
