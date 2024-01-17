@@ -25,7 +25,6 @@ class PasswordDialog : DialogFragment() {
 
   private val binding by unsafeLazy { DialogPasswordEntryBinding.inflate(layoutInflater) }
   private var isError: Boolean = false
-
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val builder = MaterialAlertDialogBuilder(requireContext())
     builder.setView(binding.root)
@@ -46,10 +45,6 @@ class PasswordDialog : DialogFragment() {
         false
       }
     }
-    dialog.window?.setFlags(
-      WindowManager.LayoutParams.FLAG_SECURE,
-      WindowManager.LayoutParams.FLAG_SECURE,
-    )
     return dialog
   }
 
@@ -69,6 +64,7 @@ class PasswordDialog : DialogFragment() {
   }
 
   companion object {
+
     const val PASSWORD_RESULT_KEY = "password_result"
   }
 }

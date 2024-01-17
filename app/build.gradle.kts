@@ -25,7 +25,7 @@ android {
   namespace = "app.passwordstore"
 
   defaultConfig {
-    applicationId = "app.passwordstore"
+    applicationId = "app.passwordstore.personal"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
